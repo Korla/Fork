@@ -69,10 +69,6 @@ if (cardsEl) {
     const card = document.createElement('div');
     card.className = 'card';
     card.appendChild(buildMiniSvg(m.a, m.b));
-    const label = document.createElement('div');
-    label.className = 'label';
-    label.textContent = `a=${m.a}, b=${m.b}`;
-    card.appendChild(label);
     card.addEventListener('click', () => onCardClick(card, m));
     cardsEl.appendChild(card);
   });

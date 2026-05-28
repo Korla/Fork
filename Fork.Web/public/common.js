@@ -290,13 +290,13 @@ function updateStatus() {
   const statusEl = document.getElementById('status-msg');
   if (statusEl) {
     if (phase === 'drafting') {
-      statusEl.textContent = `Player ${currentPlayer}'s Draft (${picksLeft} left)`;
+      statusEl.textContent = `Player ${currentPlayer}`;
     } else if (phase === 'placing') {
-      statusEl.textContent = `Player ${pendingKnight.player}, place your knight!`;
+      statusEl.textContent = `Player ${pendingKnight.player}`;
     } else if (phase === 'playing') {
-      statusEl.textContent = `Player ${currentPlayer}'s Turn`;
+      statusEl.textContent = `Player ${currentPlayer}`;
     } else if (phase === 'done') {
-      statusEl.textContent = `Game Over!`;
+      statusEl.textContent = `Game Over`;
     }
   }
   const statusBar = document.getElementById('status-bar');
@@ -304,10 +304,6 @@ function updateStatus() {
     statusBar.className = `status p${phase === 'placing' ? pendingKnight.player : currentPlayer}`;
     if (phase === 'done') statusBar.classList.add('done');
   }
-  const p1Tally = document.getElementById('p1-tally');
-  const p2Tally = document.getElementById('p2-tally');
-  if (p1Tally) p1Tally.textContent = tally[1];
-  if (p2Tally) p2Tally.textContent = tally[2];
 }
 
 // ---- Board geometry ----

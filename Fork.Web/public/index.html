@@ -31,7 +31,6 @@
     .status {
       display: flex;
       align-items: center;
-      gap: 12px;
       padding: 10px 16px;
       border-radius: 8px;
       background: #1a1a22;
@@ -41,28 +40,10 @@
       width: 100%;
       max-width: 480px;
       box-sizing: border-box;
-      justify-content: space-between;
+      justify-content: center;
     }
     .status.p2 { border-color: var(--p2); }
     .status.done { border-color: var(--done); }
-    .status .swatch {
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: var(--p1);
-      display: inline-block;
-      vertical-align: middle;
-      margin-right: 8px;
-    }
-    .status.p2 .swatch { background: var(--p2); }
-    .status.done .swatch { background: var(--done); }
-    .status .tally {
-      font-size: 13px;
-      color: #aaa;
-      font-weight: 400;
-    }
-    .status .tally .p1-tally { color: var(--p1); }
-    .status .tally .p2-tally { color: var(--p2); }
 
     /* Cards (drafting view) */
     .move-cards {
@@ -104,8 +85,8 @@
     }
     .card.p1 polygon.knight { fill: var(--p1-fill); stroke: var(--p1); }
     .card.p2 polygon.knight { fill: var(--p2-fill); stroke: var(--p2); }
-    .card.p1 polygon.center { fill: var(--p1-fill); stroke: var(--p1); }
-    .card.p2 polygon.center { fill: var(--p2-fill); stroke: var(--p2); }
+    .card.p1 polygon.center { fill: var(--p1-bg); stroke: var(--p1); }
+    .card.p2 polygon.center { fill: var(--p2-bg); stroke: var(--p2); }
     .card.p1 circle.marker { fill: var(--p1); stroke: #cef; }
     .card.p2 circle.marker { fill: var(--p2); stroke: #fce; }
     .card svg {
@@ -114,13 +95,6 @@
       min-height: 0;
       display: block;
     }
-    .card .label {
-      font-size: 13px;
-      color: #aaa;
-      font-variant-numeric: tabular-nums;
-    }
-    .card.p1 .label { color: var(--p1); }
-    .card.p2 .label { color: var(--p2); }
 
     /* Board view */
     .board-wrap {
@@ -168,21 +142,21 @@
 
     /* Card mini-svg cell styling */
     polygon {
-      fill: #2a2a3a;
-      stroke: #6cf;
+      fill: #1a1a22;
+      stroke: #333;
       stroke-width: 0.5;
     }
     polygon.knight {
-      fill: #5a3a2a;
-      stroke: #f96;
+      fill: #333;
+      stroke: #eee;
     }
     polygon.center {
-      fill: #3a2a4a;
-      stroke: #fc6;
+      fill: #1a1a22;
+      stroke: #333;
     }
     circle.marker {
-      fill: #f60;
-      stroke: #fc6;
+      fill: #eee;
+      stroke: #fff;
       stroke-width: 1;
     }
     .reach-marker {
@@ -197,10 +171,7 @@
 </head>
 <body data-phase="drafting">
   <div class="status" id="status-bar">
-    <div id="status-msg"><span class="swatch"></span>Drafting...</div>
-    <div class="tally">
-      <span class="p1-tally" id="p1-tally">0</span> - <span class="p2-tally" id="p2-tally">0</span>
-    </div>
+    <div id="status-msg">Player 1</div>
   </div>
   <div class="move-cards" id="cards"></div>
   <div class="board-wrap" id="board-wrap">
