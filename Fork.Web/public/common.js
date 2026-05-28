@@ -19,12 +19,19 @@ function knightTargets(a, b) {
 }
 
 function hexPoints(cx, cy, size) {
+  return hexPointsArray(cx, cy, size).map(p => `${p.x},${p.y}`).join(' ');
+}
+
+function hexPointsArray(cx, cy, size) {
   const pts = [];
   for (let i = 0; i < 6; i++) {
     const angle = Math.PI / 180 * (60 * i - 30);
-    pts.push(`${cx + size * Math.cos(angle)},${cy + size * Math.sin(angle)}`);
+    pts.push({
+      x: cx + size * Math.cos(angle),
+      y: cy + size * Math.sin(angle)
+    });
   }
-  return pts.join(' ');
+  return pts;
 }
 
 function isValidCell(row, col) {
@@ -84,6 +91,18 @@ function renderBoard() {
   if (!boardSvg) return;
   boardSvg.innerHTML = '';
 
+  const reachableP1 = new Set();
+  const reachableP2 = new Set();
+  if (phase === 'playing') {
+    placements.forEach(p => {
+      const moves = getLegalMoves(p);
+      moves.forEach(([r, c]) => {
+        if (p.player === 1) reachableP1.add(`${r},${c}`);
+        else reachableP2.add(`${r},${c}`);
+      });
+    });
+  }
+
   for (let r = 1; r <= ROWS; r++) {
     for (let c = COL_MIN; c <= COL_MAX; c++) {
       if (!isValidCell(r, c)) continue;
@@ -96,34 +115,97 @@ function renderBoard() {
           && !usedStarts.has(`${r},${c}`)) {
         classes.push('available', `p${pendingKnight.player}-target`);
         poly.addEventListener('click', () => onCellClick(r, c));
-      } else if (phase === 'playing' && selectedKnight !== null) {
-        const knight = placements[selectedKnight];
-        const moves = getLegalMoves(knight);
-        if (moves.some(([mr, mc]) => mr === r && mc === c)) {
-          classes.push('available', `p${knight.player}-target`);
-          poly.addEventListener('click', () => onMoveClick(r, c));
-        }
       }
       poly.setAttribute('class', classes.join(' '));
       boardSvg.appendChild(poly);
+
+      if (phase === 'playing') {
+        const key = `${r},${c}`;
+        const pts = hexPointsArray(x, y, HEX_SIZE);
+        const hasP1 = reachableP1.has(key);
+        const hasP2 = reachableP2.has(key);
+        if (hasP1 || hasP2) {
+          const poly = document.createElementNS(SVG_NS, 'polygon');
+          poly.setAttribute('points', hexPoints(x, y, HEX_SIZE));
+          if (hasP1 && hasP2) {
+            poly.setAttribute('class', 'reach-marker both');
+          } else if (hasP1) {
+            poly.setAttribute('class', 'reach-marker p1');
+          } else if (hasP2) {
+            poly.setAttribute('class', 'reach-marker p2');
+          }
+          boardSvg.appendChild(poly);
+        }
+      }
     }
   }
 
-  placements.forEach((p, idx) => {
+  // Draw all markers and labels (selected one last to ensure it's on top)
+  const sortedPlacements = placements.map((p, idx) => ({ ...p, originalIdx: idx }));
+
+  // Draw possible destinations for the selected knight
+  if (phase === 'playing' && selectedKnight !== null) {
+    const knight = placements[selectedKnight];
+    const moves = getLegalMoves(knight);
+    moves.forEach(([r, c]) => {
+      const { x, y } = cellToPixel(r, c);
+      const poly = document.createElementNS(SVG_NS, 'polygon');
+      poly.setAttribute('points', hexPoints(x, y, HEX_SIZE));
+      poly.setAttribute('class', `cell available p${knight.player}-target`);
+      poly.addEventListener('click', () => onMoveClick(r, c));
+      boardSvg.appendChild(poly);
+    });
+  }
+
+  // Draw all markers first
+  sortedPlacements.forEach((p) => {
+    if (selectedKnight === p.originalIdx) return;
     const { x, y } = cellToPixel(p.row, p.col);
     const circle = document.createElementNS(SVG_NS, 'circle');
     circle.setAttribute('cx', x);
     circle.setAttribute('cy', y);
-    circle.setAttribute('r', HEX_SIZE * 0.7);
+    circle.setAttribute('r', HEX_SIZE * 0.5);
     const classes = ['placement-marker', `p${p.player}`];
     if (phase === 'playing' && currentPlayer === p.player) {
       classes.push('selectable');
-      if (selectedKnight === idx) classes.push('selected');
       circle.addEventListener('click', (e) => {
         e.stopPropagation();
-        onKnightClick(idx);
+        onKnightClick(p.originalIdx);
       });
     }
+    circle.setAttribute('class', classes.join(' '));
+    boardSvg.appendChild(circle);
+  });
+
+  // Draw all labels
+  sortedPlacements.forEach((p) => {
+    if (selectedKnight === p.originalIdx) return;
+    const { x, y } = cellToPixel(p.row, p.col);
+    const text = document.createElementNS(SVG_NS, 'text');
+    text.setAttribute('x', x);
+    text.setAttribute('y', y);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('dominant-baseline', 'central');
+    text.setAttribute('font-size', HEX_SIZE * 0.3);
+    text.setAttribute('class', 'placement-label');
+    text.textContent = `${p.a},${p.b}`;
+    boardSvg.appendChild(text);
+  });
+
+  // Finally draw the selected knight's marker and label on top of EVERYTHING
+  if (selectedKnight !== null) {
+    const p = placements[selectedKnight];
+    const { x, y } = cellToPixel(p.row, p.col);
+    
+    const circle = document.createElementNS(SVG_NS, 'circle');
+    circle.setAttribute('cx', x);
+    circle.setAttribute('cy', y);
+    circle.setAttribute('r', HEX_SIZE * 0.5);
+    const classes = ['placement-marker', `p${p.player}`, 'selectable', 'selected'];
+    circle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      onKnightClick(selectedKnight);
+    });
     circle.setAttribute('class', classes.join(' '));
     boardSvg.appendChild(circle);
 
@@ -132,11 +214,11 @@ function renderBoard() {
     text.setAttribute('y', y);
     text.setAttribute('text-anchor', 'middle');
     text.setAttribute('dominant-baseline', 'central');
-    text.setAttribute('font-size', HEX_SIZE * 0.5);
+    text.setAttribute('font-size', HEX_SIZE * 0.3);
     text.setAttribute('class', 'placement-label');
     text.textContent = `${p.a},${p.b}`;
     boardSvg.appendChild(text);
-  });
+  }
 }
 
 function onKnightClick(idx) {
