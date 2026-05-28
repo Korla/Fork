@@ -1,20 +1,3 @@
-function knightTargets(a, b) {
-  const c = -(a + b);
-  const triple = [a, b, c];
-  const permIdx = [[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]];
-  const set = new Set();
-  for (const sign of [1, -1]) {
-    for (const [i, j, k] of permIdx) {
-      const x = sign * triple[i];
-      const y = sign * triple[j];
-      const z = sign * triple[k];
-      if (x === 0 && y === 0 && z === 0) continue;
-      set.add(`${x},${z}`);
-    }
-  }
-  return Array.from(set).map(s => s.split(',').map(Number));
-}
-
 function buildMiniSvg(a, b) {
   const svgEl = document.createElementNS(SVG_NS, 'svg');
   svgEl.setAttribute('preserveAspectRatio', 'xMidYMid meet');

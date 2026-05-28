@@ -74,6 +74,7 @@
       max-width: 480px;
     }
     body[data-phase="placing"] .move-cards,
+    body[data-phase="playing"] .move-cards,
     body[data-phase="done"] .move-cards { display: none; }
 
     .card {
@@ -127,6 +128,7 @@
       width: 70%;
     }
     body[data-phase="placing"] .board-wrap,
+    body[data-phase="playing"] .board-wrap,
     body[data-phase="done"] .board-wrap { display: block; }
     #board {
       width: 100%;
@@ -154,6 +156,9 @@
     .placement-marker { stroke-width: 0.8; }
     .placement-marker.p1 { fill: var(--p1); stroke: #cef; }
     .placement-marker.p2 { fill: var(--p2); stroke: #fce; }
+    .placement-marker.selectable { cursor: pointer; }
+    .placement-marker.selectable:hover { filter: brightness(1.2); }
+    .placement-marker.selected { stroke: white; stroke-width: 1.5; }
     .placement-label {
       fill: white;
       font-family: system-ui, sans-serif;
@@ -183,6 +188,12 @@
   </style>
 </head>
 <body data-phase="drafting">
+  <div class="status" id="status-bar">
+    <div id="status-msg"><span class="swatch"></span>Drafting...</div>
+    <div class="tally">
+      <span class="p1-tally" id="p1-tally">0</span> - <span class="p2-tally" id="p2-tally">0</span>
+    </div>
+  </div>
   <div class="move-cards" id="cards"></div>
   <div class="board-wrap" id="board-wrap">
     <svg id="board" preserveAspectRatio="xMidYMid meet"></svg>
