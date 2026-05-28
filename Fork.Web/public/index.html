@@ -99,14 +99,15 @@
     /* Board view */
     .board-wrap {
       display: none;
-      width: 70%;
+      width: 100%;
+      justify-content: center;
     }
     body[data-phase="placing"] .board-wrap,
     body[data-phase="playing"] .board-wrap,
-    body[data-phase="done"] .board-wrap { display: block; }
+    body[data-phase="done"] .board-wrap { display: flex; }
     #board {
-      width: 100%;
-      height: auto;
+      max-height: 80vh;
+      max-width: 80vw;
       display: block;
     }
     .cell {
